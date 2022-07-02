@@ -51,6 +51,9 @@ namespace FHIRToTabularFormat.Controllers
         {
             String line;
             string curResource = "";
+            string curProp = "";
+
+            int x = 0;
 
             try
             {
@@ -70,8 +73,23 @@ namespace FHIRToTabularFormat.Controllers
                         {
                             case "patient":
                                 Patient pat = patients[patients.Count - 1];
-                                // Extract and assign data from the given line
-                                AddPatientData(pat, line);
+                                switch (line) 
+                                {
+                                    case var i when line.Contains("\"telecom\":"):
+                                        curProp = "telecom";
+                                        break;
+                                    case var i when line.Contains("\"address\":"):
+                                        curProp = "address";
+                                        break;
+                                    case var i when line.Contains("\"maritalStatus\":"):
+                                        curProp = "maritalStatus";
+                                        break;
+                                    case var i when line.Contains("\"language\":"):
+                                        curProp = "language";
+                                        break;
+                                }
+                                // Extract and assign data from the given line 
+                                AddPatientData(pat, line, curProp);
                                 break;
                         }
                     }
@@ -84,14 +102,23 @@ namespace FHIRToTabularFormat.Controllers
                             case var i when line.Contains("Patient"):
                                 Patient pat = new Patient();
                                 patients.Add(pat);
-                                //resourceFound = true;
                                 curResource = "patient";
                                 break;
                         }
-                    }    
+                    }
 
                     //Read the next line
                     line = sr.ReadLine();
+
+                    if (Equals(curProp, "language"))
+                    {
+                        x++;
+                        if (x == 7)
+                        {
+                            x = 0;
+                            curProp = "";
+                        }
+                    }
                 }
 
                 sr.Close();
@@ -102,7 +129,7 @@ namespace FHIRToTabularFormat.Controllers
             }
         }
 
-        public void AddPatientData(Patient pat, string line) 
+        public void AddPatientData(Patient pat, string line, string curProp) 
         {
             switch (line) 
             {
@@ -118,40 +145,51 @@ namespace FHIRToTabularFormat.Controllers
                     pat.Prefix = ProcessValue(line, null);
                     Console.WriteLine("Prefix : " + pat.Prefix);
                     break;
-                //case var i when line.Contains("\"system\""):
-                //    pat.Telecom[pat.Telecom.Count - 1]["system"] = ProcessValue(line);
-                //    Console.WriteLine("Assigned : " + pat.Telecom[pat.Telecom.Count - 1]["system"]);
-                //    break;
+                case var i when Equals(curProp,"telecom") && line.Contains("\"system\""):
+                    pat.Telecom[pat.Telecom.Count - 1]["system"] = ProcessValue(line, null);
+                    Console.WriteLine("System : " + pat.Telecom[pat.Telecom.Count - 1]["system"]);
+                    break;
+                case var i when Equals(curProp, "telecom") && line.Contains("\"value\""):
+                    pat.Telecom[pat.Telecom.Count - 1]["value"] = ProcessValue(line, null);
+                    Console.WriteLine("Value : " + pat.Telecom[pat.Telecom.Count - 1]["value"]);
+                    break;
+                case var i when Equals(curProp, "telecom") && line.Contains("\"use\""):
+                    pat.Telecom[pat.Telecom.Count - 1]["use"] = ProcessValue(line, null);
+                    Console.WriteLine("Use : " + pat.Telecom[pat.Telecom.Count - 1]["use"]);
+                    break;
                 case var i when line.Contains("\"gender\""):
                     pat.Gender = ProcessValue(line, null);
                     Console.WriteLine("Gender : " + pat.Gender);
                     break;
-                case var i when line.Contains("\"line\""):
+                case var i when Equals(curProp, "address") && line.Contains("\"line\""):
                     pat.Address[pat.Address.Count - 1]["line"] = ProcessValue(line, "address line");
                     Console.WriteLine("Line : " + pat.Address[pat.Address.Count - 1]["line"]);
                     break;
-                case var i when line.Contains("\"city\""):
+                case var i when Equals(curProp, "address") && line.Contains("\"city\""):
                     pat.Address[pat.Address.Count - 1]["city"] = ProcessValue(line, null);
                     Console.WriteLine("City : " + pat.Address[pat.Address.Count - 1]["city"]);
                     break;
-                case var i when line.Contains("\"state\""):
+                case var i when Equals(curProp, "address") && line.Contains("\"state\""):
                     pat.Address[pat.Address.Count - 1]["state"] = ProcessValue(line, null);
                     Console.WriteLine("State : " + pat.Address[pat.Address.Count - 1]["state"]);
                     break;
-                case var i when line.Contains("\"country\""):
+                case var i when Equals(curProp, "address") && line.Contains("\"country\""):
                     pat.Address[pat.Address.Count - 1]["country"] = ProcessValue(line, null);
                     Console.WriteLine("Country : " + pat.Address[pat.Address.Count - 1]["country"]);
                     break;
-                //case var i when line.Contains("\"maritalStatus\""):
-                //    pat.MaritalStatus = char.Parse(ProcessValue(line, null));
-                //    Console.WriteLine("MaritalStatus : " + pat.MaritalStatus);
-                //    break;
+                case var i when Equals(curProp, "maritalStatus") && line.Contains("\"text\""):
+
+                    pat.MaritalStatus = char.Parse(ProcessValue(line, null));
+                    Console.WriteLine("MaritalStatus : " + pat.MaritalStatus);
+                    break;
                 case var i when line.Contains("\"multipleBirthBoolean\""):
                     pat.MultipleBirth = bool.Parse(ProcessValue(line, null));
                     Console.WriteLine("MultipleBirth : " + pat.MultipleBirth);
                     break;
-                
-
+                case var i when Equals(curProp, "language") && line.Contains("\"text\""):
+                    pat.Communication.Add(ProcessValue(line, null));
+                    Console.WriteLine("Language : " + pat.Communication[0]);
+                    break;
             }
         }
 
@@ -181,7 +219,6 @@ namespace FHIRToTabularFormat.Controllers
                             output += words[i] + " ";
                         }
                         break;
-
                 }
             }
 

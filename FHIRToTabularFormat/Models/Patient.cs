@@ -39,7 +39,7 @@
         public bool MultipleBirth { get; set; }
 
         // List of languages 
-        public List<string> Communication { get; set; }
+        public List<string> Communication { get; set; } = new List<string>();
 
     }
 }
