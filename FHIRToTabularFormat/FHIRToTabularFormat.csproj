@@ -9,5 +9,9 @@
   <ItemGroup>
     <Folder Include="wwwroot\data\" />
   </ItemGroup>
+	
+  <ItemGroup>
+	  <InternalsVisibleTo Include="$(AssemblyName).Test"/>
+  </ItemGroup>
 
 </Project>

@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "4DOizLLEyulHIDoxYW4OutniTioF6RnuIvJZTsWmaFc=",
+  "Hash": "VNQ7wMxKxePyBIp1dJMciwVEWPTwtk5ht/W9EeeLcx0=",
   "Source": "FHIRToTabularFormat",
   "BasePath": "_content/FHIRToTabularFormat",
   "Mode": "Default",
@@ -66,6 +66,23 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\css\\site.css"
+    },
+    {
+      "Identity": "C:\\Users\\mobai\\Desktop\\FHIRToTabularFormat\\FHIRToTabularFormat\\wwwroot\\data\\FHIRTest.txt",
+      "SourceId": "FHIRToTabularFormat",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\mobai\\Desktop\\FHIRToTabularFormat\\FHIRToTabularFormat\\wwwroot\\",
+      "BasePath": "_content/FHIRToTabularFormat",
+      "RelativePath": "data/FHIRTest.txt",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\data\\FHIRTest.txt"
     },
     {
       "Identity": "C:\\Users\\mobai\\Desktop\\FHIRToTabularFormat\\FHIRToTabularFormat\\wwwroot\\favicon.ico",

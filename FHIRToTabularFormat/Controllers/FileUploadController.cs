@@ -185,7 +185,7 @@ namespace FHIRToTabularFormat.Controllers
                 }
             }
 
-            return output;
+            return output.Trim();
         }
     }
 }
