@@ -146,10 +146,12 @@ namespace FHIRToTabularFormat.Controllers
             try 
             {
                 Random r = new Random();
-                StreamWriter sw = new StreamWriter(Path.Combine($"{Directory.GetCurrentDirectory()}/wwwroot/data", "output" + r.Next(1,100)), true);
+                string path = Path.Combine($"{Directory.GetCurrentDirectory()}/wwwroot/data", "output" + r.Next(1, 100));
+                StreamWriter sw = new StreamWriter(path, true);
 
                 foreach (Patient p in pat) 
                 {
+                    sw.WriteLine("***   START   ***");
                     for (int i = 0; i < dT.Columns.Count; i++)
                     {
                         string name = dT.Columns[i].ColumnName;
@@ -185,9 +187,13 @@ namespace FHIRToTabularFormat.Controllers
                             sw.WriteLine($"{name}: {p.GetType().GetProperty(name).GetValue(p, null)}");
                         }
                     }
+                    sw.WriteLine("***   END ***");
                 }
-      
+
+                sw.Flush();
                 sw.Close();
+
+                Console.WriteLine("Output file in: " + path);
             }
             catch (Exception e)
             {
