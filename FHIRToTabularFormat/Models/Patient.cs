@@ -40,6 +40,5 @@
 
         // List of languages 
         public List<string> Communication { get; set; } = new List<string>();
-
     }
 }

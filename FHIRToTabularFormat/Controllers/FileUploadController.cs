@@ -1,5 +1,8 @@
 ﻿using FHIRToTabularFormat.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel;
+using System.Data;
+using System.Reflection;
 
 namespace FHIRToTabularFormat.Controllers
 {
@@ -35,7 +38,6 @@ namespace FHIRToTabularFormat.Controllers
 
             ProcessData(filePaths);
 
-
             return Ok(new { files.Count, size, filePaths});
         }
 
@@ -55,14 +57,15 @@ namespace FHIRToTabularFormat.Controllers
 
             int x = 0;
 
+            // Lists off supported models below, currently only patient supported
+            List<Patient> patients = new List<Patient>();
+
+            // Read from given file
             try
             {
                 StreamReader sr = new StreamReader(path);
 
                 line = sr.ReadLine();
-
-                // Lists off supported models below, currently only patient supported
-                List<Patient> patients = new List<Patient>();
 
                 //Continue to read until you reach end of file
                 while (line != null)
@@ -127,7 +130,71 @@ namespace FHIRToTabularFormat.Controllers
             {
                 Console.WriteLine("Exception: " + e.Message);
             }
+
+            if(patients.Count > 0) WriteFile(patients);
         }
+
+        public void WriteFile(List<Patient> pat) 
+        {
+            PropertyDescriptorCollection props = TypeDescriptor.GetProperties(typeof(Patient));
+
+            DataTable dT = new DataTable();
+
+            foreach (PropertyDescriptor p in props)
+                dT.Columns.Add(p.Name, p.PropertyType);
+
+            try 
+            {
+                Random r = new Random();
+                StreamWriter sw = new StreamWriter(Path.Combine($"{Directory.GetCurrentDirectory()}/wwwroot/data", "output" + r.Next(1,100)), true);
+
+                foreach (Patient p in pat) 
+                {
+                    for (int i = 0; i < dT.Columns.Count; i++)
+                    {
+                        string name = dT.Columns[i].ColumnName;
+
+                        if (Equals(name, "Address") || Equals(name, "Telecom"))
+                        {
+                            List<Dictionary<string,string>> prop;
+
+                            if (Equals(name, "Address"))
+                                prop = p.Address;
+                            else
+                                prop = p.Telecom;
+
+                            sw.WriteLine(dT.Columns[i].ColumnName);
+                            foreach (var d in prop)
+                            {
+                                foreach (var kvp in d)
+                                {
+                                    sw.WriteLine($" {kvp.Key}: {kvp.Value}");
+                                }
+                            }
+                        }
+                        else if (Equals(name, "Communication")) 
+                        {
+                            sw.WriteLine(dT.Columns[i].ColumnName);
+                            foreach (var languange in p.Communication) 
+                            {
+                                sw.WriteLine($" Language: {languange}");
+                            }
+                        }
+                        else
+                        {
+                            sw.WriteLine($"{name}: {p.GetType().GetProperty(name).GetValue(p, null)}");
+                        }
+                    }
+                }
+      
+                sw.Close();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Exception: " + e.Message);
+            }
+        }
+    
 
         public void AddPatientData(Patient pat, string line, string curProp) 
         {
