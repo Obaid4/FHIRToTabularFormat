@@ -161,6 +161,14 @@ namespace FHIRToTabularFormat.Controllers
                     pat.Gender = ProcessValue(line, null);
                     Console.WriteLine("Gender : " + pat.Gender);
                     break;
+                case var i when line.Contains("\"birthDate\""):
+                    pat.DOB = ProcessDateTimeValue(line, "DOB");
+                    Console.WriteLine("DOB : " + pat.DOB);
+                    break;
+                case var i when line.Contains("\"deceasedDateTime\""):
+                    pat.DeceasedDateTime = ProcessDateTimeValue(line, "deceased");
+                    Console.WriteLine("Deceased : " + pat.DeceasedDateTime);
+                    break;
                 case var i when Equals(curProp, "address") && line.Contains("\"line\""):
                     pat.Address[pat.Address.Count - 1]["line"] = ProcessValue(line, "address line");
                     Console.WriteLine("Line : " + pat.Address[pat.Address.Count - 1]["line"]);
@@ -223,6 +231,64 @@ namespace FHIRToTabularFormat.Controllers
             }
 
             return output.Trim();
+        }
+
+        public DateTime ProcessDateTimeValue(string line, string type) 
+        {
+            DateTime dateTime = new DateTime();
+
+            string year = "";
+            string month = "";
+            string day = "";
+
+            string hour = "";
+            string min = "";
+            string sec = "";
+
+            string timeZone = "";
+
+            char[] chars = line.Trim().ToCharArray();
+            string processedLine = "";
+            foreach (char c in chars)
+            {
+                if (c == '-' || c == ',' || c == ':' || c == 'T' || c == '"') { }
+                else processedLine += c;
+            }
+            processedLine = processedLine.Trim();
+
+            string[] words = processedLine.Split(" ");
+
+            char[] dateT = words[words.Length - 1].ToCharArray();
+
+            for (int i = 0; i < 8; i++)
+            {
+                if (i < 4)
+                    year += dateT[i];
+                else if (i >= 4 && i < 6)
+                    month += dateT[i];
+                else if (i >= 6 && i < 8)
+                    day += dateT[i];
+            }
+
+            if (Equals(type, "DOB"))
+                dateTime = new DateTime(int.Parse(year), int.Parse(month), int.Parse(day));
+            if (Equals(type, "deceased")) 
+            {
+                for (int i = 8; i < 14; i++)
+                {
+                    if (i >= 8 && i < 10)
+                        hour += dateT[i];
+                    else if (i >= 10 && i < 12)
+                        min += dateT[i];
+                    else
+                        sec += dateT[i];
+                }
+
+                dateTime = new DateTime(int.Parse(year), int.Parse(month), int.Parse(day),
+                    int.Parse(hour), int.Parse(min), int.Parse(sec), DateTimeKind.Utc);
+            }
+              
+            return dateTime;
         }
     }
 }

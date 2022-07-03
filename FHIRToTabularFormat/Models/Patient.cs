@@ -19,7 +19,7 @@
 
         public string Gender { get; set; }
         // year, month, day
-        public DateTime DOB { get; set; } 
+        public DateTime DOB { get; set; }
         // year, month, day, hour, min, seconds, UTC timezone
         public DateTime DeceasedDateTime { get; set; }
 

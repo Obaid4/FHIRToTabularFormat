@@ -41,5 +41,16 @@ namespace FHIRToTabularFormat.Test
 
             Assert.AreEqual("phone", pat.Telecom[pat.Telecom.Count - 1]["system"]);
         }
+
+        [TestMethod]
+        public void TestDateTimeProcessDateTimeValue() 
+        {
+            string testStr = "\"deceasedDateTime\": \"1998-08-15T13:05:53+01:00\",";
+
+            DateTime dateTime = fileUploadController.ProcessDateTimeValue(testStr, "deceased");
+
+            DateTime test = new DateTime(1998,08,15,13,05,53, DateTimeKind.Utc);
+            Assert.AreEqual(test, dateTime);
+        }
     }
 }
